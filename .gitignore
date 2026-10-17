@@ -1,0 +1,12 @@
+.env
+.env.*
+*.xlsx
+*.xls
+*service-account*.json
+*service_account*.json
+*-credentials.json
+credentials.json
+__pycache__/
+*.pyc
+.venv/
+venv/

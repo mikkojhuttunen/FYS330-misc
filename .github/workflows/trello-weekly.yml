@@ -1,0 +1,46 @@
+name: Trello weekly export
+
+on:
+  schedule:
+    - cron: "0 12 * * 5"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: trello-weekly
+  cancel-in-progress: false
+
+jobs:
+  export:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: trello-weekly
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: trello-weekly/requirements.txt
+
+      - name: Install dependencies
+        run: pip install -r requirements.txt
+
+      - name: Export Trello boards to Google Sheet
+        env:
+          TRELLO_KEY: ${{ secrets.TRELLO_KEY }}
+          TRELLO_TOKEN: ${{ secrets.TRELLO_TOKEN }}
+          BOARD_IDS: ${{ secrets.BOARD_IDS }}
+          GOOGLE_SERVICE_ACCOUNT_JSON: ${{ secrets.GOOGLE_SERVICE_ACCOUNT_JSON }}
+          SHEET_ID: ${{ secrets.SHEET_ID }}
+          DOING_LISTS: ${{ vars.DOING_LISTS }}
+          DONE_LISTS: ${{ vars.DONE_LISTS }}
+          WEEKLY_SNAPSHOT: ${{ vars.WEEKLY_SNAPSHOT }}
+        run: python trello_weekly.py
